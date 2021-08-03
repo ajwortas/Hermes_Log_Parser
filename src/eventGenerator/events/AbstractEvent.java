@@ -43,7 +43,9 @@ public abstract class AbstractEvent implements Event{
 	}
 	
 	private static final SimpleDateFormat assignmentLogsDateFormat=new SimpleDateFormat("EEE MMM dd kk:mm:ss zzz yyyy");
-	private static final SimpleDateFormat eventDateFormat=new SimpleDateFormat("dd/MM/yyyy kk:mm:ss");
+
+	
+	
 	protected long secondsBetween(String date1, String date2) throws ParseException{
 		Date first=assignmentLogsDateFormat.parse(date1);
 		Date second=assignmentLogsDateFormat.parse(date2);
@@ -51,9 +53,11 @@ public abstract class AbstractEvent implements Event{
 		return secondsBetween;
 	}
 	
+	private static final SimpleDateFormat eventDateFormat=new SimpleDateFormat("dd/MM/yyyy kk:mm:ss");
 	protected String convertDate(String date) throws ParseException {
 		Date conv = assignmentLogsDateFormat.parse(date);
-		return eventDateFormat.format(conv);
+		String formatted = eventDateFormat.format(conv);
+		return formatted;
 	}
 	
 	protected String [] getMatches(String term, String []... searchData){

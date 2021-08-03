@@ -10,31 +10,29 @@ import java.util.List;
 
 import collectors.Collector;
 import dataStorage.SuitesAndTests;
+import selectYearMapping.YearSelectFactory;
 import tools.LogReader;
 import tools.LogWriter;
 import tools.TestingData;
 
 public class SemesterLogGenerator {
 
-	private static final String [] baseCatagories={	
+	private static final String [] nameHeader={	
 			"Name",							//0
-		  	"Num times tested",				//1
-		  	"First test date",				//2
-		  	"Last test date",				//3
 		  	};	
 
 	 
-	private final boolean enableBaseCategories;
+	private final boolean includeName;
 	private Collector [] collectors;
 	private String outputFileName;
 	
 	
-	public SemesterLogGenerator(Collector [] collectors, boolean enableBaseCategories) {
-		this(collectors,enableBaseCategories,"assignment#.csv");
+	public SemesterLogGenerator(Collector [] collectors, boolean includeName) {
+		this(collectors,includeName,"assignment#.csv");
 	}
 	
-	public SemesterLogGenerator(Collector [] collectors, boolean enableBaseCategories,String outputName) {
-		this.enableBaseCategories=enableBaseCategories;
+	public SemesterLogGenerator(Collector [] collectors, boolean includeName,String outputName) {
+		this.includeName=includeName;
 		this.collectors=collectors;
 		outputFileName=outputName;
 	}
@@ -64,22 +62,30 @@ public class SemesterLogGenerator {
 			
 			SuitesAndTests assignmentSuitesAndTests = TestingData.findAllSuitesAndTests(allAssignmentLines,assignmentIndex);
 			
+			
 			String [] tests = new String[assignmentSuitesAndTests.getTests().size()];
 			assignmentSuitesAndTests.getTests().toArray(tests);
 			
 			CollectorManager dataCollection = new CollectorManager();
 			
+			//TODO this should be delegated to the CollectorManager
 			for(Collector collector:collectors) {
 				if(collector.requiresTestNames()) 
 					collector.setTestNames(tests);
+				if(collector.requiresSuiteMapping())
+					collector.setSuiteMapping(YearSelectFactory.getYearMap().getMapping(assignmentIndex));
+//					collector.setSuiteMapping(assignmentSuitesAndTests.getMapping());
+				if(collector.requiresAssignmentNum())
+					collector.setAssignmentNumber(Integer.toString(assignmentIndex));
+				
 				dataCollection.addCollector(collector);
 			}
 			
 			
 			List<String> dataCategories = new ArrayList<String>();
 			
-			if(enableBaseCategories)
-				Collections.addAll(dataCategories, baseCatagories);
+			if(includeName)
+				Collections.addAll(dataCategories, nameHeader);
 			
 			dataCategories.addAll(dataCollection.getOrderedHeaders());
 
@@ -95,19 +101,19 @@ public class SemesterLogGenerator {
 			for(int i=0;i<allAssignmentLines.size();i++){
 				
 				try{
-					dataCollection.processLog(allAssignmentLines.get(i),1);
-
 					String studentName=studentNames.get(i);
-
+					for(Collector collector:collectors)
+						if(collector.requiresStudentName()) 
+							collector.setStudentName(studentName);
+						
+					dataCollection.processLog(allAssignmentLines.get(i),1);
+					
 					List<String> resultsList;
 					
-					//Name cannot be gotten from a collector, The other base categories could be collectors
-					if(enableBaseCategories) {
+					//TODO make a name collector
+					if(includeName) {
 						resultsList = new ArrayList<String>();
 						resultsList.add(studentName);
-						resultsList.add(Integer.toString(allAssignmentLines.get(i).size()));
-						resultsList.add(allAssignmentLines.get(i).get(0).split(",")[1]);
-						resultsList.add(allAssignmentLines.get(i).get(allAssignmentLines.get(i).size()-1).split(",")[1]);
 						resultsList.addAll(dataCollection.getOrderedData());
 					}else 
 						resultsList = dataCollection.getOrderedData();

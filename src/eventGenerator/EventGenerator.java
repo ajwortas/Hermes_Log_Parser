@@ -26,11 +26,10 @@ public class EventGenerator {
 				continue;
 			
 			List<String> studentNames = logReader.getStudentNames();
-			
 			SuitesAndTests assignmentSuitesAndTests = TestingData.findAllSuitesAndTests(allAssignmentLines,assignmentIndex);
-			
 			String [] tests = new String[assignmentSuitesAndTests.getTests().size()];
 			assignmentSuitesAndTests.getTests().toArray(tests);
+			
 			
 			EventManager dataCollection = new EventManager();
 			dataCollection.addEvent(new WorkingOnEvent());

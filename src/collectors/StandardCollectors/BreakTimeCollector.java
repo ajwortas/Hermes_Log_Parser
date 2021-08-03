@@ -1,17 +1,20 @@
-package collectors;
+package collectors.StandardCollectors;
 
 import java.text.ParseException;
 
-public class WorkTimeCollector extends AbstractCollector{
+import collectors.AbstractCollector;
 
-	private final String movementMatchingRegex = ".*[\\+-]";
+public class BreakTimeCollector extends AbstractCollector{
+
+
 	private final long breakTime;
+	private final String movementMatchingRegex = ".*[\\+-]";
 	
+	private int numBreaks=0;
 	private String lastTime=null;
 	private double [] workingResults;
-	private long currentTime=0;
 	
-	public WorkTimeCollector(long breakTime){
+	public BreakTimeCollector(long breakTime){
 		reqPass=1;
 		this.breakTime=breakTime;
 	}
@@ -24,22 +27,23 @@ public class WorkTimeCollector extends AbstractCollector{
 		if(lastTime!=null){
 			try {
 				long difference = secondsBetween(lastTime, time);
-				currentTime+=difference>breakTime?breakTime:difference;
+				if(difference>breakTime)
+					numBreaks++;
 			} catch (ParseException e) {
 				e.printStackTrace();
 				throw new IllegalArgumentException("Invalid formatting");
 			}
+			
+			String [] finishedTests = getMatches(movementMatchingRegex,data[TEST_PASS_INDEX].split(" "),data[TEST_PARTIAL_INDEX].split(" "));
+			if(finishedTests.length>0){
+				for(int i=0;i<testNames.length;i++)
+					for(int j=0;j<finishedTests.length;j++)
+						if(testNames[i].equals(finishedTests[j].replace("+", "").replace("-", "")))
+							workingResults[i]+=numBreaks;
+				numBreaks=0;
+			}
 		}
-		
-		String [] finishedTests = getMatches(movementMatchingRegex,data[TEST_PASS_INDEX].split(" "),data[TEST_PARTIAL_INDEX].split(" "));
-		if(finishedTests.length>0){
-			long splitTime = (currentTime==0?breakTime:currentTime)/finishedTests.length;
-			for(int i=0;i<testNames.length;i++)
-				for(int j=0;j<finishedTests.length;j++)
-					if(testNames[i].equals(finishedTests[j].replace("+", "").replace("-", "")))
-						workingResults[i]+=splitTime;
-			currentTime=0;
-		}
+	
 		lastTime=time;
 	}
 	
@@ -52,22 +56,20 @@ public class WorkTimeCollector extends AbstractCollector{
 	
 	@Override
 	public void reset() {
-		currentTime=0;
+		numBreaks=0;
 		workingResults=new double[testNames.length];
 		lastTime=null;
 		super.reset();
 	}
-
-
+	
 	@Override
 	public boolean requiresTestNames() {
 		return true;
 	}
 
-
 	@Override
 	protected String getHeaderPhrase() {
-		return " was worked on for x seconds";
+		return " contained x breaks";
 	}
 	
 }

@@ -1,8 +1,10 @@
-package collectors;
+package collectors.StandardCollectors;
 
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+
+import collectors.AbstractCollector;
 
 public class WorkTimeStatisticsCollector extends AbstractCollector{
 

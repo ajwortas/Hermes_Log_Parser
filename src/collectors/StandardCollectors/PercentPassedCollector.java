@@ -1,4 +1,7 @@
-package collectors;
+package collectors.StandardCollectors;
+
+import collectors.AbstractCollector;
+import collectors.Collector;
 
 public class PercentPassedCollector extends AbstractCollector{
 	

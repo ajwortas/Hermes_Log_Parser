@@ -1,7 +1,10 @@
 package compiledLogGenerator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import collectors.Collector;
 
@@ -17,12 +20,21 @@ public class CollectorManager {
 		this.collectors=collectors;
 	}
 	
+	public CollectorManager(Collector ... collectors) {
+		this.collectors = new ArrayList<>();
+		for(Collector c:collectors)
+			this.collectors.add(c);
+	}
+	
 	public void addCollector(Collector c){
 		collectors.add(c);
 	}
 	
+	public List<Collector> getCollectors(){
+		return collectors;
+	}
+	
 	public void processLog(List<String> dataLines, int numPasses) {
-		
 		for(int i=1;i<=numPasses;i++)
 			for(String dataLine:dataLines){
 				String [] splitLine=dataLine.split(",");
@@ -53,6 +65,32 @@ public class CollectorManager {
 		return dataEntries;
 	}
 	
+	public List<String []> getCertainHeadersAndData(String [] desiredTests) {
+
+		List<String []> retval = new ArrayList<String[]>();
+		for(Collector collector:collectors) {
+			String [] headers = collector.getHeaders();
+			String [] data = collector.getResults();
+			boolean requiresTestName = collector.requiresTestNames();
+			
+			for(int i=0;i<headers.length;i++) {
+				if(requiresTestName && !headerContainsTests(headers[i],desiredTests)) continue;
+				String [] addToReturn = {headers[i],data[i]};
+				retval.add(addToReturn);
+			}
+		}
+		
+		return retval;
+	}
+	
+	private boolean headerContainsTests(String header, String [] desiredTests) {
+		for(String test:desiredTests)
+			if(header.contains(test))
+				return true;
+		return false;
+	}
+	
+	
 	public void reset(){
 		for(Collector collector:collectors)
 			collector.reset();
@@ -65,6 +103,12 @@ public class CollectorManager {
 		return false;
 	}
 	
+	public List<String> getCollectorNames(){
+		List<String> retval = new ArrayList<>();
+		for(Collector collector:collectors)
+			retval.add(collector.getClass().getSimpleName());
+		return retval;
+	}
 }
 
 	

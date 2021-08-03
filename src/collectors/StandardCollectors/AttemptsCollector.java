@@ -1,22 +1,33 @@
-package collectors;
+package collectors.StandardCollectors;
+
+import collectors.AbstractCollector;
 
 public class AttemptsCollector extends AbstractCollector{
 
 	private final String movementMatchingRegex = ".*[\\+-]";
 	
-	private double [] workingResults;
+	protected double [] workingResults;
 	private int attempts=0;
+	private final String headerPhrase;
 	
 	public AttemptsCollector(){
+		this(" was attempted x times");
+		
+	}
+	public AttemptsCollector(String header) {
+		headerPhrase=header;
 		reqPass=1;
 	}
+	
 	
 	@Override
 	public void logData(String[] data) throws IllegalArgumentException {
 		String [] passedTests = data[TEST_PASS_INDEX].split(" ");
 		String [] partialTests = data[TEST_PARTIAL_INDEX].split(" ");
+
 		attempts++;
 		String [] finishedTests = getMatches(movementMatchingRegex,passedTests,partialTests);
+
 		if(finishedTests.length>0){
 			double amount = (double)attempts/finishedTests.length;
 			for(int i=0;i<testNames.length;i++)
@@ -45,7 +56,7 @@ public class AttemptsCollector extends AbstractCollector{
 		attempts=0;
 		super.reset();
 	}
-
+	
 	@Override
 	public boolean requiresTestNames() {
 		return true;
@@ -53,8 +64,9 @@ public class AttemptsCollector extends AbstractCollector{
 
 	@Override
 	protected String getHeaderPhrase() {
-		return " was attempted x times";
+		return headerPhrase;
 	}
+
 
 
 }

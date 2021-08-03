@@ -6,13 +6,22 @@ import java.util.Iterator;
 
 public class AssignmentLogIterator implements Iterator<File>{
 
+	private static final String replacePattern = "###";
+	public static final String fineGrainedPattern =  ".*Assignment"+replacePattern+"SuiteFineGrained\\.csv",
+							   nonFineGrainedPattern=".*Assignment"+replacePattern+"Suite\\.csv";
+	
+	
 	private File nextFile;
 	
 	private Iterator<File> fileIterator;
-	private String logPattern;
+	private final String logPattern;
 	
 	public AssignmentLogIterator(File logLocation, String assignmentNumber){
-		logPattern="Assignment"+assignmentNumber+"Suite";
+		this(logLocation,nonFineGrainedPattern,assignmentNumber);
+	}
+	
+	public AssignmentLogIterator(File logLocation, String pattern, String assignmentNumber){
+		logPattern=pattern.replace(replacePattern, assignmentNumber);
 		fileIterator=Arrays.stream(logLocation.listFiles(File::isDirectory)).iterator();
 		nextFile=findNext();
 	}
@@ -37,7 +46,7 @@ public class AssignmentLogIterator implements Iterator<File>{
 				if(logFile.length()==0)
 					continue;
 				String lfs=logFile.toString();
-				if(lfs.contains(logPattern))
+				if(lfs.matches(logPattern))
 					return logFile;
 			}
 		}

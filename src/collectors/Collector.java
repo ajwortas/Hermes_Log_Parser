@@ -1,6 +1,6 @@
 package collectors;
 
-
+import dataStorage.SuiteMapping;
 
 public interface Collector {
 
@@ -13,13 +13,26 @@ public interface Collector {
 	static final int TEST_PARTIAL_INDEX=6;
 	static final int TEST_FAIL_INDEX=7;
 	static final int TEST_UNTESTED_INDEX=8;
+	//TODO add fine grained indexes
 	
 	public String [] getResults();
 	public String [] getHeaders();
-	public void logData(String [] data) throws IllegalArgumentException;
-	public void setTestNames(String [] names);
-	public boolean requiresTestNames();
-	public void reset();
 	public int getRequiredPass();
+	
+	//Called per line of data read
+	public void logData(String [] data) throws IllegalArgumentException;
+	
+	public void reset();
+	
+	public void setStudentName(String name);
+	public void setTestNames(String [] names);
+	public void setSuiteMapping(SuiteMapping mapping);
+	public void setAssignmentNumber(String assignmentnum);
+	
+	public boolean requiresTestNames();
+	public boolean requiresStudentName();
+	public boolean requiresSuiteMapping();
+	public boolean requiresAssignmentNum();
 	public boolean otherCollectorCompatable();
+	
 }

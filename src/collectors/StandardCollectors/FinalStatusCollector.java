@@ -1,4 +1,6 @@
-package collectors;
+package collectors.StandardCollectors;
+
+import collectors.AbstractCollector;
 
 public class FinalStatusCollector extends AbstractCollector{
 	
