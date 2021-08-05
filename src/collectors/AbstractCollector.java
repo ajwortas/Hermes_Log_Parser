@@ -86,6 +86,7 @@ public abstract class AbstractCollector implements Collector {
 	protected HashMap<String,State> tests = new HashMap<String,State>();
 	private List<String> improvedTests, reducedTests, changedTests;
 	
+	//TODO this could be done outside of tests (Collector manager?) so that multiple tests don't run the same instructions 
 	protected void updateTests(String [] log) {
 		improvedTests = new ArrayList<String>();
 		reducedTests = new ArrayList<String>();

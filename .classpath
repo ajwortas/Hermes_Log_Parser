@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre1.8.0_271"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre1.8.0_271">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/GraderBasics"/>
 	<classpathentry kind="lib" path="I:/Research/Outside_Projects/GraderBasics/lib/dayton.ellwanger.Hermes.jar"/>
+	<classpathentry kind="lib" path="I:/Research/Outside_Projects/GraderBasics/lib/org.eclipse.core.commands_3.9.200.v20180827-1727.jar"/>
+	<classpathentry kind="lib" path="I:/Research/Outside_Projects/GraderBasics/lib/org.eclipse.equinox.common_3.10.100.v20180827-1235.jar"/>
+	<classpathentry kind="lib" path="I:/Research/Outside_Projects/GraderBasics/lib/org.eclipse.jdt.core_3.15.0.v20180905-0317.jar"/>
+	<classpathentry kind="lib" path="I:/Research/Outside_Projects/GraderBasics/lib/org.eclipse.swt.win32.win32.x86_64_3.108.0.v20180904-1901.jar"/>
+	<classpathentry kind="lib" path="I:/Research/Outside_Projects/GraderBasics/lib/org.eclipse.text_3.7.0.v20180822-1511.jar"/>
+	<classpathentry kind="lib" path="I:/Research/Outside_Projects/GraderBasics/lib/org.eclipse.ui.workbench_3.112.0.v20180906-1121.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -1,4 +1,4 @@
-package collectors.IntervalReplay;
+package collectors.IntervalReplayer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,10 +16,8 @@ public abstract class AbstractIntervalReplayerBasedCollector extends AbstractCol
 	private final String unfixedPathToStudents;
 	private String fixedPathToStudents;
 	protected File studentProject;
-	
-//	private HashMap<String, Date> lastAssignmentFinalCheck = new HashMap<>(); 
-//	protected Date lastKnown=null, firstKnown=null;
-	protected long startTime=-1,endTime=-1;
+
+	protected long startTime=-1,testStartTime=-1,lastTestTime=-1,currentTestTime=-1;
 	protected final AnIntervalReplayer replayer;
 	
 	public AbstractIntervalReplayerBasedCollector(File semesterFolderLocation, String pathToStudents) throws Exception {	
@@ -30,19 +28,26 @@ public abstract class AbstractIntervalReplayerBasedCollector extends AbstractCol
 		if(semesterFolderLocation.getAbsolutePath().contains(numberReplace))
 			throw new Exception("Directory path must not contain the sequence: "+numberReplace);
 		
+		reqPass=1;
 		replayer = new AnIntervalReplayer(IntervalDriver.MULTIPLIER, IntervalDriver.DEFAULT_THRESHOLD, IntervalDriver.TRACE);
 		unfixedPathToStudents=semesterFolderLocation.getAbsolutePath()+"/"+pathToStudents;
 	}
 	
 	@Override
 	public void logData(String[] data) throws IllegalArgumentException{
-//		try {
-//			if(firstKnown==null)
-//				firstKnown=this.parseDate(data[TIME_TESTED_INDEX]);
-//			lastKnown=this.parseDate(data[TIME_TESTED_INDEX]);
-//		}catch(Exception e) {
-//			throw new IllegalArgumentException("Error when parsing date");
-//		}
+		try {
+			if(testStartTime==-1) {
+				testStartTime = parseDate(data[TIME_TESTED_INDEX]).getTime();
+				startTime = replayer.getStartTime(studentProject);
+				lastTestTime=startTime;
+				currentTestTime=testStartTime;
+			}else {
+				lastTestTime = currentTestTime;
+				currentTestTime = parseDate(data[TIME_TESTED_INDEX]).getTime();
+			}
+		}catch(Exception e) {
+			throw new IllegalArgumentException("Error when parsing date");
+		}
 	}
 	
 	protected Date monthEarlier(Date init) {
@@ -56,20 +61,22 @@ public abstract class AbstractIntervalReplayerBasedCollector extends AbstractCol
 	@Override
 	public void reset() {
 		super.reset();
-//		lastKnown=null;
 		startTime=-1;
-		endTime=-1;
+		testStartTime=-1;
+		lastTestTime=-1;
+		currentTestTime=-1;
 		studentProject=null;
 	}
 	
 	@Override
 	public void setStudentName(String name) {
 		super.setStudentName(name);
+		if(name.matches("\".*\"")) 
+			name = name.replaceAll("\"", "");
 		File studentSubmission = new File(fixedPathToStudents+"/"+name+"/Submission attachment(s)");
 		try {
-			studentProject = findLogsFolder(studentSubmission);
-			startTime = replayer.getStartTime(studentProject);
-			endTime = replayer.getEndTime(studentProject);			
+			studentProject = findLogsFolder(studentSubmission);		
+			
 		}catch(Exception e) {
 			e.printStackTrace();
 		}

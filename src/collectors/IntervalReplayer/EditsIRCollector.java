@@ -1,8 +1,8 @@
-package collectors.IntervalReplay;
+package collectors.IntervalReplayer;
 
 import java.io.File;
 
-public class EditsIntervalReplayerCollector extends AbstractIntervalReplayerBasedCollector {
+public class EditsIRCollector extends AbstractIntervalReplayerBasedCollector {
 	
 	private final String [] header= {
 			"Number of Incerts",
@@ -11,14 +11,15 @@ public class EditsIntervalReplayerCollector extends AbstractIntervalReplayerBase
 			"Characters Deleted"
 	};
 	
-	public EditsIntervalReplayerCollector(File semesterFolderLocation, String pathToStudents) throws Exception {
+	public EditsIRCollector(File semesterFolderLocation, String pathToStudents) throws Exception {
 		super(semesterFolderLocation, pathToStudents);
 		generateHeaders();
+		reset();
 	}
 	
 	@Override
 	public String[] getResults() {
-		int [] result = this.replayer.getEdits(this.studentProject,this.startTime,this.endTime);
+		int [] result = this.replayer.getEdits(this.studentProject,this.startTime,this.lastTestTime);
 		
 		for(int i=0;i<results.length;i++)
 			results[i] = Integer.toString(result[i]);

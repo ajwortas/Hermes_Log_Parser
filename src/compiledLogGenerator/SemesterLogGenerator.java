@@ -99,9 +99,9 @@ public class SemesterLogGenerator {
 			
 			//Data processing for each student
 			for(int i=0;i<allAssignmentLines.size();i++){
-				
 				try{
 					String studentName=studentNames.get(i);
+					
 					for(Collector collector:collectors)
 						if(collector.requiresStudentName()) 
 							collector.setStudentName(studentName);

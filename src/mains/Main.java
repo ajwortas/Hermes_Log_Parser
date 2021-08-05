@@ -5,6 +5,7 @@ import java.io.FileWriter;
 
 import collectors.*;
 import collectors.EventCollectors.*;
+import collectors.IntervalReplayer.*;
 import collectors.StandardCollectors.*;
 import compiledLogGenerator.LocalChecksLogData;
 import compiledLogGenerator.SemesterLogGenerator;
@@ -17,13 +18,97 @@ public class Main {
 	private static final int breakTime= (int)(10*60);
 	
 	public static void main(String[] args) {
-		runEventsAnalysis();
-//		runAnalysis();
-//		eventLogs();
-//		soloTesting();
+		try {
+//			runEventsAnalysis();
+			runAnalysis();
+//			eventLogs();
+//			soloTesting();
+			replayData();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void replayData() throws Exception {
+		final File rawFolder = new File("I:\\Research\\Log_Parsing\\ClassFolders\\Comp301\\Summer20");
+		final String pathing = "Assignment "+AbstractIntervalReplayerBasedCollector.numberReplace+"_named/Assignment "+AbstractIntervalReplayerBasedCollector.numberReplace;
+	
+		Collector [] collectors = {
+			new ContextBasedWorkTimeIRCollector(rawFolder,pathing),
+			new FixedWorkTimeIRCollector(rawFolder,pathing),
+			new EditsIRCollector(rawFolder,pathing),
+			new RunsIRCollector(rawFolder,pathing),
+			new TestFocusedFixedWorkTimeIRCollector(rawFolder,pathing),
+			new TestFocusedContextBasedWorkTimeIRCollector(rawFolder,pathing),
+		};
+	
+	
+		File [] inputs = {
+				new File("InputFolders/Comp301/Summer20"),
+		};
+		File [] outputs = {
+				new File("ThirdPaper"),
+		};
+
+		
+		for(int i=0;i<inputs.length;i++) {
+			try {
+				new SemesterLogGenerator(collectors,true,"assignment#_IntervalReplayer.csv").readData(inputs[i], outputs[i]);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		
 	}
 	
+	private static void runAnalysis() {
+		File [] inputs = {
+//				new File("InputFolders/Comp533/Spring20"),
+//				new File("InputFolders/Comp533/Spring19"),
+//				new File("InputFolders/Comp533/Spring18"),
+//				new File("InputFolders/Comp524/Fall2020_hash"),
+//				new File("InputFolders/Comp524/Fall2019"),
+				new File("InputFolders/Comp301/Summer20"),
+				
+		};
+		File [] outputs = {
+//				new File("SecondPaperWork/Comp533Spring2020"),
+//				new File("SecondPaperWork/Comp533Spring2019"),
+//				new File("SecondPaperWork/Comp533Spring2018"),
+//				new File("SecondPaperWork/Comp524_Newer"),
+//				new File("SecondPaperWork/Comp524Fall2019"),
+				new File("ThirdPaper"),
+		};
+		
+		Collector [] collectors = {
+				new TotalAttemptsCollector(),
+//				new WorkingSetStatisicsCollector(),
+//				new TestingSetStatisicsCollector(),
+//				new NaiveAttemptsCollector(),
+				
+				new PercentPassedCollector(4),
+				new TotalTimeCollector(),
+				new DateFirstTestedCollector(),
+				new DateLastTestedCollector(),
+				
+				new AttemptsCollectorV2(),
+				new WorkTimeCollector(breakTime, false),
+				new IncreasingAttemptsCollector(),
+				new DecreasingAttemptsCollectorV2(),
+				new FinalStatusCollector(),
+		};
+		
+		YearSelectFactory.setYearMap(new Comp524Fall2020());
+		
+		for(int i=0;i<inputs.length;i++) {
+			try {
+				new SemesterLogGenerator(collectors,true,"assignment#.csv").readData(inputs[i], outputs[i]);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+	}
 	
 	private static void soloTesting() {
 		File directory = new File("C:\\Users\\Andrew\\OneDrive\\Comp 524\\Assignment Three");
@@ -107,90 +192,6 @@ public class Main {
 			}
 		}
 		
-	}
-	
-	private static void runAnalysis() {
-		File [] inputs = {
-//				new File("InputFolders/Comp533/Spring20"),
-//				new File("InputFolders/Comp533/Spring19"),
-//				new File("InputFolders/Comp533/Spring18"),
-				new File("InputFolders/Comp524/Fall2020_hash"),
-//				new File("InputFolders/Comp524/Fall2019"),
-				
-		};
-		File [] outputs = {
-//				new File("SecondPaperWork/Comp533Spring2020"),
-//				new File("SecondPaperWork/Comp533Spring2019"),
-//				new File("SecondPaperWork/Comp533Spring2018"),
-				new File("SecondPaperWork/Comp524_Newer"),
-//				new File("SecondPaperWork/Comp524Fall2019"),
-		};
-		
-		Collector [] collectors = {
-				new TotalAttemptsCollector(),
-				new WorkingSetStatisicsCollector(),
-				new TestingSetStatisicsCollector(),
-				new AttemptsCollectorV2(),
-				new NaiveAttemptsCollector(),
-//				new DateFirstTestedCollector(),
-//				new DateLastTestedCollector(),
-//				new TotalTimeCollector(),
-//				new WorkTimeCollector(breakTime, false),
-//				new IncreasingAttemptsCollector(),
-//				new DecreasingAttemptsCollectorV2(),
-		};
-		
-		YearSelectFactory.setYearMap(new Comp524Fall2020());
-		
-		for(int i=0;i<inputs.length;i++) {
-			try {
-				new SemesterLogGenerator(collectors,true,"assignment#.csv").readData(inputs[i], outputs[i]);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		
-	}
-	
-	
-	private static void firstMain() {
-		try {
-			
-
-			File data=new File("InputFolders/Comp533/Spring20");
-			File output=new File("SecondPaperWork/Comp533Spring2020");
-
-
-
-//			new EventGenerator().readData(data, output);
-			
-			Collector [] collectors = {
-					new TotalAttemptsCollector(),
-					new AttemptsCollector(),
-					new DateFirstTestedCollector(),
-					new DateLastTestedCollector(),
-					new TotalTimeCollector(),
-					new WorkTimeCollector(breakTime),
-					new IncreasingAttemptsCollector(),
-					new DecreasingAttemptsCollector(),
-					
-//					new DateFirstTestedCollector(),
-//					new DateLastTestedCollector(),
-//					new PercentPassedCollector(4),
-//					new AttemptsCollector_NullIncomplete(),
-//					new BreakTimeCollector(breakTime),
-//					new FinalStatusCollector(),
-//					new WorkTimeCollector(breakTime),
-//					new KnownTimeCollector()
-//					new WorkTimeStatisticsCollector()
-			};
-			
-			new SemesterLogGenerator(collectors,true,"assignment#.csv").readData(data, output);
-//			fixCSVData();
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 	
 	/**
