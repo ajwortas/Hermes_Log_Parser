@@ -1,4 +1,4 @@
-package tools;
+package tools.files;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import tools.AssignmentLogIterator;
 
 public class LogReader {
 
@@ -40,8 +42,16 @@ public class LogReader {
 			
 			while(scan.hasNext()){
 				String nextLine=scan.nextLine();
-				if(nextLine.split(",").length==9)
+				if(nextLine.matches(".*,,$")) 
+					nextLine=nextLine.replaceAll(",,", ", ,");
+				
+				
+				String [] split = nextLine.split(",");
+				if(split.length==9||split.length==17)
 					logLines.add(nextLine);
+				else {
+					System.err.println("Error with log length: "+assignmentLog.getAbsolutePath());
+				}
 			}
 			scan.close();
 			if(logLines.size()==0)
@@ -72,7 +82,7 @@ public class LogReader {
 		for(int i=0;i<13;i++){
 			String assignmentNumber = i==0?i+"_1":Integer.toString(i);
 			
-			Iterator<File> testVal=new AssignmentLogIterator(location,assignmentNumber);
+			Iterator<File> testVal=new AssignmentLogIterator(location, AssignmentLogIterator.fineGrainedPattern,assignmentNumber);
 			if(testVal.hasNext())
 				allAssignments.add(testVal);
 			else// if(i==0)

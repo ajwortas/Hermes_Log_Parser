@@ -1,32 +1,52 @@
 package compiledLogGenerator;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import collectors.Collector;
+import tools.concurrency.*;
 
 public class CollectorManager {
 
+	public static boolean enableConcurrency = true;
+	private final ThreadManager manager;
 	private List<Collector> collectors;
+	private int maxReqPass=1;
+	private int numNormalPasses=0;
 	
 	public CollectorManager(){
-		collectors=new ArrayList<Collector>();
+		this(new ArrayList<Collector>(),null);
 	}
 	
-	public CollectorManager(List<Collector> collectors){
+	public CollectorManager(ThreadManager tm){
+		this(new ArrayList<Collector>(),tm);
+	}
+	
+	public CollectorManager(List<Collector> collectors, ThreadManager tm){
 		this.collectors=collectors;
+		
+		for(Collector c:collectors)
+			if(c.getRequiredPass()!=Integer.MAX_VALUE) {
+				numNormalPasses++;
+				if(c.getRequiredPass()>maxReqPass)
+					maxReqPass = c.getRequiredPass();
+			}
+		
+		manager = tm;
 	}
 	
 	public CollectorManager(Collector ... collectors) {
-		this.collectors = new ArrayList<>();
+		this();
 		for(Collector c:collectors)
-			this.collectors.add(c);
+			addCollector(c);
 	}
 	
 	public void addCollector(Collector c){
+		if(c.getRequiredPass()!=Integer.MAX_VALUE) {
+			numNormalPasses++;
+			if(c.getRequiredPass()>maxReqPass)
+				maxReqPass = c.getRequiredPass();
+		}
 		collectors.add(c);
 	}
 	
@@ -34,13 +54,24 @@ public class CollectorManager {
 		return collectors;
 	}
 	
-	public void processLog(List<String> dataLines, int numPasses) {
-		for(int i=1;i<=numPasses;i++)
+	public void processLog(List<String> dataLines) throws Exception {
+
+		for(int i=1;i<=maxReqPass;i++)
 			for(String dataLine:dataLines){
 				String [] splitLine=dataLine.split(",");
-				for(Collector collector:collectors)
-					if(collector.getRequiredPass()==i)
-						collector.logData(splitLine);
+				
+				if(enableConcurrency&&maxReqPass==1) {
+					Joiner j = new Joiner(this.numNormalPasses);
+					
+					for(Collector collector:collectors)
+						if(collector.getRequiredPass()==i)
+							manager.addTask(new CollectorTask(collector,j,splitLine));
+					j.finish();
+				}else {
+					for(Collector collector:collectors)
+						if(collector.getRequiredPass()==i)
+							collector.logData(splitLine);
+				}
 			}
 		
 		String [] lastLine = dataLines.get(dataLines.size()-1).split(",");

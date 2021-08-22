@@ -3,8 +3,8 @@ package selectYearMapping;
 import java.util.ArrayList;
 import java.util.List;
 
-import dataStorage.SuiteMapping;
-import dataStorage.SuiteTestPairings;
+import tools.dataStorage.SuiteMapping;
+import tools.dataStorage.SuiteTestPairings;
 
 public class Comp524Fall2020 implements YearMap {
 

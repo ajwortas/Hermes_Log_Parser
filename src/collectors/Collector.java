@@ -1,6 +1,6 @@
 package collectors;
 
-import dataStorage.SuiteMapping;
+import tools.dataStorage.SuiteMapping;
 
 public interface Collector {
 
@@ -13,7 +13,13 @@ public interface Collector {
 	static final int TEST_PARTIAL_INDEX=6;
 	static final int TEST_FAIL_INDEX=7;
 	static final int TEST_UNTESTED_INDEX=8;
-	//TODO add fine grained indexes
+	static final int SESSION_NUMBER_INDEX=9;
+	static final int SESSION_RUN_NUMBER_INDEX=10;
+	static final int RUN_IS_SUITE_INDEX=11;
+	static final int TESTS_IN_SUITE_INDEX=12;
+	static final int PREREQ_TESTS_INDEX=13;
+	static final int EXTRA_CREDIT_TESTS_INDEX=14;
+	static final int TEST_SCORES_INDEX=15;
 	
 	public String [] getResults();
 	public String [] getHeaders();

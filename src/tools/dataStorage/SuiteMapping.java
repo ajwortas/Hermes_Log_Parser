@@ -1,4 +1,4 @@
-package dataStorage;
+package tools.dataStorage;
 
 import java.util.ArrayList;
 import java.util.HashMap;

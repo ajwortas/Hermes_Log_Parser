@@ -1,6 +1,6 @@
 package selectYearMapping;
 
-import dataStorage.SuiteMapping;
+import tools.dataStorage.SuiteMapping;
 
 public interface YearMap {
 

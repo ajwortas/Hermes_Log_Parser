@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import dataStorage.SuiteMapping;
-import dataStorage.SuiteTestPairings;
-import dataStorage.SuitesAndTests;
+import tools.dataStorage.SuiteMapping;
+import tools.dataStorage.SuiteTestPairings;
+import tools.dataStorage.SuitesAndTests;
 
 
 public class TestingData {

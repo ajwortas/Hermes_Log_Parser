@@ -79,7 +79,11 @@ class LocalLogDataAnalyzer {
 		}
 		
 		//Collector manager processess the provided log
-		cm.processLog(logData, 1);
+		try {
+			cm.processLog(logData);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 		//Gathering Data
 		List<String> headers = cm.getOrderedHeaders();

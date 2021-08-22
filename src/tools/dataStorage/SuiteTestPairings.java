@@ -1,4 +1,4 @@
-package dataStorage;
+package tools.dataStorage;
 
 public class SuiteTestPairings {
 

@@ -11,8 +11,8 @@ import compiledLogGenerator.LocalChecksLogData;
 import compiledLogGenerator.SemesterLogGenerator;
 import selectYearMapping.Comp524Fall2020;
 import selectYearMapping.YearSelectFactory;
-import tools.CSVParser;
-import tools.LogWriter;
+import tools.files.CSVParser;
+import tools.files.LogWriter;
 public class Main {
 
 	private static final int breakTime= (int)(10*60);
@@ -20,7 +20,7 @@ public class Main {
 	public static void main(String[] args) {
 		try {
 //			runEventsAnalysis();
-			runAnalysis();
+//			runAnalysis();
 //			eventLogs();
 //			soloTesting();
 			replayData();
@@ -36,8 +36,10 @@ public class Main {
 		Collector [] collectors = {
 			new ContextBasedWorkTimeIRCollector(rawFolder,pathing),
 			new FixedWorkTimeIRCollector(rawFolder,pathing),
-			new EditsIRCollector(rawFolder,pathing),
-			new RunsIRCollector(rawFolder,pathing),
+			new RunAvgFixedWorkTimeIRCollector(rawFolder,pathing),
+			new RunAvgContextBasedWorkTimeIRCollector(rawFolder,pathing),
+//			new EditsIRCollector(rawFolder,pathing),
+//			new RunsIRCollector(rawFolder,pathing),
 			new TestFocusedFixedWorkTimeIRCollector(rawFolder,pathing),
 			new TestFocusedContextBasedWorkTimeIRCollector(rawFolder,pathing),
 		};
@@ -53,7 +55,10 @@ public class Main {
 		
 		for(int i=0;i<inputs.length;i++) {
 			try {
-				new SemesterLogGenerator(collectors,true,"assignment#_IntervalReplayer.csv").readData(inputs[i], outputs[i]);
+				
+				SemesterLogGenerator smg = new SemesterLogGenerator(collectors,true,"assignment#_IntervalReplayer.csv");
+				smg.readData(inputs[i], outputs[i]);
+				smg.tm.end();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

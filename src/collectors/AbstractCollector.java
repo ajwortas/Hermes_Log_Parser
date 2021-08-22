@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import dataStorage.SuiteMapping;
+import tools.dataStorage.SuiteMapping;
 
 public abstract class AbstractCollector implements Collector {
 
@@ -179,7 +179,7 @@ public abstract class AbstractCollector implements Collector {
 		return false;
 	}
 	
-	protected static final SimpleDateFormat dateFormat=new SimpleDateFormat("EEE MMM dd kk:mm:ss zzz yyyy");
+	protected final SimpleDateFormat dateFormat=new SimpleDateFormat("EEE MMM dd kk:mm:ss zzz yyyy");
 	protected long secondsBetween(String date1, String date2) throws ParseException{
 		Date first=dateFormat.parse(date1);
 		Date second=dateFormat.parse(date2);
