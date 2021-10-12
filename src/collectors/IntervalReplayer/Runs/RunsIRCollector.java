@@ -1,6 +1,8 @@
-package collectors.IntervalReplayer;
+package collectors.IntervalReplayer.Runs;
 
 import java.io.File;
+
+import collectors.AbstractIntervalReplayerBasedCollector;
 
 public class RunsIRCollector extends AbstractIntervalReplayerBasedCollector {
 	

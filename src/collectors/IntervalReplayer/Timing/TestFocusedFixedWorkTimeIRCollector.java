@@ -1,20 +1,23 @@
-package collectors.IntervalReplayer;
+package collectors.IntervalReplayer.Timing;
 
 import java.io.File;
 import java.util.List;
 
-public class TestFocusedContextBasedWorkTimeIRCollector extends AbstractIntervalReplayerBasedCollector{
+import collectors.AbstractIntervalReplayerBasedCollector;
 
-	public TestFocusedContextBasedWorkTimeIRCollector(File semesterFolderLocation, String pathToStudents) throws Exception {
+public class TestFocusedFixedWorkTimeIRCollector extends AbstractIntervalReplayerBasedCollector{
+
+	public TestFocusedFixedWorkTimeIRCollector(File semesterFolderLocation, String pathToStudents) throws Exception {
 		super(semesterFolderLocation, pathToStudents);
 	}
 
+	
 	private double [] workingResults;
 	
 	@Override
 	public void logData(String[] data) throws IllegalArgumentException{
 		updateTests(data);
-		
+	
 		List<String> movedTests = getChangedTests();
 		String [] finishedTests = new String[movedTests.size()];
 		movedTests.toArray(finishedTests);
@@ -25,7 +28,7 @@ public class TestFocusedContextBasedWorkTimeIRCollector extends AbstractInterval
 			super.logData(data);
 			long time=0;
 			try {
-				time += replayer.getWorkTime(this.studentProject, this.lastTestTime, this.currentTestTime)[0];
+				time += replayer.getWorkTime(this.studentProject, this.lastTestTime, this.currentTestTime)[1];
 			}catch(Exception e) {
 				throw new IllegalArgumentException(e.getMessage());
 			}
@@ -58,7 +61,7 @@ public class TestFocusedContextBasedWorkTimeIRCollector extends AbstractInterval
 	
 	@Override
 	protected String getHeaderPhrase() {
-		return " Context Based Work Time";
+		return " Fixed Work Time";
 	}
 
 	@Override

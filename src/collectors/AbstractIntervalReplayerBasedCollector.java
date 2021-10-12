@@ -1,4 +1,4 @@
-package collectors.IntervalReplayer;
+package collectors;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -6,7 +6,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 import analyzer.logAnalyzer.AnIntervalReplayer;
-import collectors.AbstractCollector;
 import grader.basics.interval.IntervalDriver;
 
 public abstract class AbstractIntervalReplayerBasedCollector extends AbstractCollector {
@@ -49,6 +48,8 @@ public abstract class AbstractIntervalReplayerBasedCollector extends AbstractCol
 			throw new IllegalArgumentException("Error when parsing date");
 		}
 	}
+	
+	
 	
 	protected Date monthEarlier(Date init) {
 		Calendar c = Calendar.getInstance();

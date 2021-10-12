@@ -1,7 +1,8 @@
-package collectors.IntervalReplayer;
+package collectors.IntervalReplayer.Runs;
 
 import java.io.File;
 
+import collectors.AbstractIntervalReplayerBasedCollector;
 import collectors.Collector;
 
 public class RunAvgFixedWorkTimeIRCollector extends AbstractIntervalReplayerBasedCollector{

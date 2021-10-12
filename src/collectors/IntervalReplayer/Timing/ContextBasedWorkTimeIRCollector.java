@@ -1,6 +1,8 @@
-package collectors.IntervalReplayer;
+package collectors.IntervalReplayer.Timing;
 
 import java.io.File;
+
+import collectors.AbstractIntervalReplayerBasedCollector;
 
 public class ContextBasedWorkTimeIRCollector extends AbstractIntervalReplayerBasedCollector {
 	

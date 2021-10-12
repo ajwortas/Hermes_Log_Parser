@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import tools.dataStorage.SuiteMapping;
@@ -83,7 +84,7 @@ public abstract class AbstractCollector implements Collector {
 	}
 	
 	
-	protected HashMap<String,State> tests = new HashMap<String,State>();
+	private HashMap<String,State> tests = new HashMap<String,State>();
 	private List<String> improvedTests, reducedTests, changedTests;
 	
 	//TODO this could be done outside of tests (Collector manager?) so that multiple tests don't run the same instructions 
@@ -154,6 +155,7 @@ public abstract class AbstractCollector implements Collector {
 		}
 		
 	}
+
 	
 	protected List<String> getImprovedTests(){
 		return improvedTests;
@@ -164,7 +166,12 @@ public abstract class AbstractCollector implements Collector {
 	protected List<String> getChangedTests(){
 		return changedTests;
 	}
+	protected Map<String,State> getTestStates(){
+		return tests;
+	}
 
+	
+	
 	protected boolean contains(String [] searchData, String term){
 		for(String data:searchData)
 			if(data.equals(term))
@@ -209,6 +216,20 @@ public abstract class AbstractCollector implements Collector {
 		for(int i=0;i<headers.length;i++)
 			headers[i]=testNames[i]+headerPhrase;
 		this.headers=headers;
+	}
+	
+	protected String [] combineArrays(String[]... arrs) {
+		int totalSize=0;
+		for(String[] arr:arrs)
+			totalSize+=arr.length;
+		String[] retval = new String[totalSize];
+		int currentSize=0;
+		for(String [] arr:arrs) {
+			for(int i=0;i<arr.length;i++)
+				retval[i+currentSize]=arr[i];
+			currentSize+=arr.length;
+		}
+		return retval;
 	}
 	
 	protected abstract String getHeaderPhrase();

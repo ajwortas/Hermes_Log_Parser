@@ -1,6 +1,5 @@
 package collectors.StandardCollectors;
 
-import java.util.HashMap;
 import java.util.List;
 
 import collectors.AbstractCollector;
@@ -48,7 +47,6 @@ public class WorkingSetStatisicsCollector extends AbstractCollector{
 		workingResults=new double[headers.length];
 		attempts=0;
 		results=new String[headers.length];
-		tests = new HashMap<String,State>();
 	}
 	
 	

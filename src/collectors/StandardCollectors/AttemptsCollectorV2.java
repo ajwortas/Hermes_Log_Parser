@@ -12,13 +12,11 @@ public class AttemptsCollectorV2 extends AbstractCollector{
 	
 	public AttemptsCollectorV2(){
 		this(" attempts");
-		
 	}
 	public AttemptsCollectorV2(String header) {
 		headerPhrase=header;
 		reqPass=1;
 	}
-	
 	
 	@Override
 	public void logData(String[] data) throws IllegalArgumentException {

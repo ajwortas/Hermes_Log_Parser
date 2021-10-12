@@ -6,7 +6,11 @@ import java.io.FileWriter;
 import collectors.*;
 import collectors.EventCollectors.*;
 import collectors.IntervalReplayer.*;
+import collectors.IntervalReplayer.FineGrained.*;
+import collectors.IntervalReplayer.Runs.*;
+import collectors.IntervalReplayer.Timing.*;
 import collectors.StandardCollectors.*;
+import compiledLogGenerator.CollectorManager;
 import compiledLogGenerator.LocalChecksLogData;
 import compiledLogGenerator.SemesterLogGenerator;
 import selectYearMapping.Comp524Fall2020;
@@ -19,15 +23,46 @@ public class Main {
 	
 	public static void main(String[] args) {
 		try {
-//			runEventsAnalysis();
+			runEventsAnalysis();
 //			runAnalysis();
 //			eventLogs();
 //			soloTesting();
-			replayData();
+//			replayData();
+//			attemptsAndTimings();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
+	
+	private static void attemptsAndTimings() throws Exception {
+		final File rawFolder = new File("I:\\Research\\Log_Parsing\\ClassFolders\\Comp301\\Summer20");
+		final String pathing = "Assignment "+AbstractIntervalReplayerBasedCollector.numberReplace+"_named/Assignment "+AbstractIntervalReplayerBasedCollector.numberReplace;
+		Collector [] collectors = {
+				new AttemptsCollectorV2(),
+				new AvgTimeToSolveIRCollector(rawFolder,pathing),
+				new AvgTestFocusedTimeToSolveIRCollector(rawFolder,pathing),
+		};
+		
+		File [] inputs = {
+				new File("InputFolders/Comp301/Summer20"),
+		};
+		File [] outputs = {
+				new File("FourthPaper"),
+		};
+
+		
+		for(int i=0;i<inputs.length;i++) {
+			try {
+				SemesterLogGenerator smg = new SemesterLogGenerator(collectors,true,"assignment#_IntervalReplayer.csv");
+				smg.readData(inputs[i], outputs[i]);
+				smg.tm.end();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	
 	
 	private static void replayData() throws Exception {
 		final File rawFolder = new File("I:\\Research\\Log_Parsing\\ClassFolders\\Comp301\\Summer20");
@@ -166,32 +201,35 @@ public class Main {
 //				new File("InputFolders/Comp533/Spring20"),
 //				new File("InputFolders/Comp533/Spring19"),
 //				new File("InputFolders/Comp533/Spring18"),
-				new File("InputFolders/Comp524/Fall2020_hash"),
+//				new File("InputFolders/Comp524/Fall2020_hash"),
 //				new File("InputFolders/Comp524/Fall2019"),
-				
+				new File("InputFolders/Comp301/Summer20"),
 		};
 		File [] outputs = {
 //				new File("SecondPaperWork/Comp533Spring2020"),
 //				new File("SecondPaperWork/Comp533Spring2019"),
 //				new File("SecondPaperWork/Comp533Spring2018"),
-				new File("SecondPaperWork/Comp524_Newer_events"),
+//				new File("SecondPaperWork/Comp524_Newer_events"),
 //				new File("SecondPaperWork/Comp524Fall2019"),
+				new File("FourthPaper"),
 		};
 		
 		Collector [][] recursives = {
-				{new TestWorkingSetEvent("ListToStringDeepChecker")},
-				{new TestWorkingSetEvent("ListToStringChecker")},
-				{new TestWorkingSetEvent("BaseCaseSExpressionToStringChecker")},
-				{new TestWorkingSetEvent("BaseCaseListToStringChecker")}
+//				{new TestWorkingSetEvent("ListToStringDeepChecker")},
+//				{new TestWorkingSetEvent("ListToStringChecker")},
+//				{new TestWorkingSetEvent("BaseCaseSExpressionToStringChecker")},
+//				{new TestWorkingSetEvent("BaseCaseListToStringChecker")}
+				{new TestWorkingEvent()},
+				{new TestStatusEvent()}
 		};
 		
 		
 		
-		YearSelectFactory.setYearMap(new Comp524Fall2020());
-		
+//		YearSelectFactory.setYearMap(new Comp524Fall2020());
+		CollectorManager.enableConcurrency=false;
 		for(int i=0;i<recursives.length;i++) {
 			try {
-				new SemesterLogGenerator(recursives[i],false,i+"assignment#.csv").readData(inputs[0], outputs[0]);
+				new SemesterLogGenerator(recursives[i],false,i+"assignment#_events.csv").readData(inputs[0], outputs[0]);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
