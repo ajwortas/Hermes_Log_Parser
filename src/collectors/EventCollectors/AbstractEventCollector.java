@@ -12,7 +12,7 @@ public abstract class AbstractEventCollector extends AbstractCollector{
 
 	protected int eventCount=0;
 	protected List<String> workingResults = new ArrayList<String>();
-	private final String [] headers = {"case_id,timestamp,activity,user"};
+	private final String [] set_headers = {"case_id,timestamp,activity,user"};
 	
 	@Override
 	public boolean requiresStudentName() {
@@ -33,6 +33,7 @@ public abstract class AbstractEventCollector extends AbstractCollector{
 	
 	@Override
 	public void reset() {
+		this.headers=set_headers;
 		workingResults=new ArrayList<String>();
 		super.reset();
 	}
@@ -40,7 +41,7 @@ public abstract class AbstractEventCollector extends AbstractCollector{
 	@Override
 	public String[] getHeaders() {
 		eventCount=0;
-		return headers;
+		return set_headers;
 	}
 	
 	protected void addActivity(String activity, String date) throws ParseException {

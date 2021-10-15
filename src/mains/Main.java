@@ -5,6 +5,8 @@ import java.io.FileWriter;
 
 import collectors.*;
 import collectors.EventCollectors.*;
+import collectors.EventCollectors.FineGrained.*;
+import collectors.FineGrained.*;
 import collectors.IntervalReplayer.*;
 import collectors.IntervalReplayer.FineGrained.*;
 import collectors.IntervalReplayer.Runs.*;
@@ -23,12 +25,12 @@ public class Main {
 	
 	public static void main(String[] args) {
 		try {
-			runEventsAnalysis();
+//			runEventsAnalysis();
 //			runAnalysis();
 //			eventLogs();
 //			soloTesting();
 //			replayData();
-//			attemptsAndTimings();
+			attemptsAndTimings();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -38,9 +40,15 @@ public class Main {
 		final File rawFolder = new File("I:\\Research\\Log_Parsing\\ClassFolders\\Comp301\\Summer20");
 		final String pathing = "Assignment "+AbstractIntervalReplayerBasedCollector.numberReplace+"_named/Assignment "+AbstractIntervalReplayerBasedCollector.numberReplace;
 		Collector [] collectors = {
-				new AttemptsCollectorV2(),
-				new AvgTimeToSolveIRCollector(rawFolder,pathing),
-				new AvgTestFocusedTimeToSolveIRCollector(rawFolder,pathing),
+//				new AttemptsCollectorV2(),
+//				new AvgTimeToSolveIRCollector(rawFolder,pathing),
+//				new AvgTestFocusedTimeToSolveIRCollector(rawFolder,pathing),
+//				new TotalSessionsCollector(),
+//				new TestPassPercentCollector(),
+//				new TestScorePercentCollector(),
+				new DateFirstTestedCollector(),
+				new TestFocusedFixedWorkTimeIRCollector(rawFolder,pathing),
+				new TestFocusedContextBasedWorkTimeIRCollector(rawFolder,pathing),
 		};
 		
 		File [] inputs = {
@@ -53,7 +61,7 @@ public class Main {
 		
 		for(int i=0;i<inputs.length;i++) {
 			try {
-				SemesterLogGenerator smg = new SemesterLogGenerator(collectors,true,"assignment#_IntervalReplayer.csv");
+				SemesterLogGenerator smg = new SemesterLogGenerator(collectors,true,"assignment#_TestTimes.csv");
 				smg.readData(inputs[i], outputs[i]);
 				smg.tm.end();
 			} catch (Exception e) {
@@ -219,8 +227,10 @@ public class Main {
 //				{new TestWorkingSetEvent("ListToStringChecker")},
 //				{new TestWorkingSetEvent("BaseCaseSExpressionToStringChecker")},
 //				{new TestWorkingSetEvent("BaseCaseListToStringChecker")}
-				{new TestWorkingEvent()},
-				{new TestStatusEvent()}
+				{new TestRunsCollector()},
+//				{new TestWorkingEvent()},
+//				{new TestStatusEvent()},
+				
 		};
 		
 		

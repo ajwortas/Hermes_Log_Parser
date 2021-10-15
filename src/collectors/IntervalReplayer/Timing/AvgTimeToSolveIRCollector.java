@@ -28,6 +28,7 @@ public class AvgTimeToSolveIRCollector extends AbstractIntervalReplayerBasedColl
 	@Override
 	public void logData(String[] data) throws IllegalArgumentException{
 		updateTests(data);
+		
 		try {		
 			for(String broken:combineArrays(data[TEST_FAIL_INDEX].split(" "),data[TEST_PARTIAL_INDEX].split(" "))) {
 				broken = broken.replaceAll(movementMatchString, "");
