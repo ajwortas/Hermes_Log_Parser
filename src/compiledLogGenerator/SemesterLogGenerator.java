@@ -11,7 +11,6 @@ import java.util.List;
 import collectors.Collector;
 import selectYearMapping.YearSelectFactory;
 import tools.TestingData;
-import tools.concurrency.ThreadManager;
 import tools.dataStorage.SuitesAndTests;
 import tools.files.LogReader;
 import tools.files.LogWriter;
@@ -22,11 +21,9 @@ public class SemesterLogGenerator {
 			"Name",							//0
 		  	};	
 
-	 
 	private final boolean includeName;
-	private Collector [] collectors;
+	private CollectorManager manager;
 	private String outputFileName;
-	public final ThreadManager tm;
 	
 	public SemesterLogGenerator(Collector [] collectors, boolean includeName) {
 		this(collectors,includeName,"assignment#.csv");
@@ -34,11 +31,8 @@ public class SemesterLogGenerator {
 	
 	public SemesterLogGenerator(Collector [] collectors, boolean includeName,String outputName) {
 		this.includeName=includeName;
-		this.collectors=collectors;
+		manager=new CollectorManager(collectors);
 		outputFileName=outputName;
-		
-		tm = CollectorManager.enableConcurrency ? new ThreadManager() : null;
-		
 	}
 	
 	/**
@@ -49,14 +43,18 @@ public class SemesterLogGenerator {
 	}
 	
 	public void setCollectors(Collector [] collectors) {
-		this.collectors=collectors;
+		manager=new CollectorManager(collectors);
 	}
 	
-	public void readData(File location, File output) throws IOException, ParseException{
+	public void generateData(File location, File output) throws IOException, ParseException{
+		generateData(location,output,0);
+	}
+	
+	public void generateData(File location, File output, int minimumAssignmentNumber) throws IOException, ParseException{
 		
 		LogReader logReader = new LogReader(location);
 		
-		for(int assignmentIndex=4;assignmentIndex<logReader.getNumAssignments();assignmentIndex++){
+		for(int assignmentIndex=minimumAssignmentNumber;assignmentIndex<logReader.getNumAssignments();assignmentIndex++){
 			
 			List<List<String>> allAssignmentLines = logReader.getAllStudentsAssignmentLogLines(assignmentIndex);
 			if(allAssignmentLines==null)
@@ -70,28 +68,17 @@ public class SemesterLogGenerator {
 			String [] tests = new String[assignmentSuitesAndTests.getTests().size()];
 			assignmentSuitesAndTests.getTests().toArray(tests);
 			
-			CollectorManager dataCollection =  new CollectorManager(tm);
 			
-			//TODO this should be delegated to the CollectorManager
-			for(Collector collector:collectors) {
-				if(collector.requiresTestNames()) 
-					collector.setTestNames(tests);
-				if(collector.requiresSuiteMapping())
-					collector.setSuiteMapping(YearSelectFactory.getYearMap().getMapping(assignmentIndex));
-//					collector.setSuiteMapping(assignmentSuitesAndTests.getMapping());
-				if(collector.requiresAssignmentNum())
-					collector.setAssignmentNumber(Integer.toString(assignmentIndex));
-				
-				dataCollection.addCollector(collector);
-			}
-			
+			manager.setTestNames(tests);
+			manager.setTestMappings(YearSelectFactory.getYearMap(assignmentIndex));
+			manager.setAssignmentNumumber(Integer.toString(assignmentIndex));
 			
 			List<String> dataCategories = new ArrayList<String>();
 			
 			if(includeName)
 				Collections.addAll(dataCategories, nameHeader);
 			
-			dataCategories.addAll(dataCollection.getOrderedHeaders());
+			dataCategories.addAll(manager.getOrderedHeaders());
 
 			//File Writing and output
 			String path=output.toString()+"/"+outputFileName.replaceAll("#", Integer.toString(assignmentIndex));
@@ -106,11 +93,9 @@ public class SemesterLogGenerator {
 				try{
 					String studentName=studentNames.get(i);
 					
-					for(Collector collector:collectors)
-						if(collector.requiresStudentName()) 
-							collector.setStudentName(studentName);
+					manager.setStudentName(studentName);
 						
-					dataCollection.processLog(allAssignmentLines.get(i));
+					manager.processLog(allAssignmentLines.get(i));
 					
 					List<String> resultsList;
 					
@@ -118,14 +103,13 @@ public class SemesterLogGenerator {
 					if(includeName) {
 						resultsList = new ArrayList<String>();
 						resultsList.add(studentName);
-						resultsList.addAll(dataCollection.getOrderedData());
+						resultsList.addAll(manager.getOrderedData());
 					}else 
-						resultsList = dataCollection.getOrderedData();
+						resultsList = manager.getOrderedData();
 					
-					
-					dataCollection.reset();
+					manager.reset();
 				
-					if(dataCollection.specialPrint()) 
+					if(manager.specialPrint()) 
 						LogWriter.simpleWrite(dataOut,resultsList);
 					else
 						LogWriter.writeToFile(dataOut,resultsList);
@@ -133,7 +117,7 @@ public class SemesterLogGenerator {
 				}catch(Exception e){
 					e.printStackTrace();
 					System.out.println(studentNames.get(i) + "   " + path);
-					dataCollection.reset();
+					manager.reset();
 					
 				}
 			}

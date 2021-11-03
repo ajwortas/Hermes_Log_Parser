@@ -1,5 +1,6 @@
 package collectors;
 
+import compiledLogGenerator.CollectorManager;
 import tools.dataStorage.SuiteMapping;
 
 public interface Collector {
@@ -34,6 +35,7 @@ public interface Collector {
 	public void setTestNames(String [] names);
 	public void setSuiteMapping(SuiteMapping mapping);
 	public void setAssignmentNumber(String assignmentnum);
+	public void setCollectorManager(CollectorManager manager);
 	
 	public boolean requiresTestNames();
 	public boolean requiresStudentName();

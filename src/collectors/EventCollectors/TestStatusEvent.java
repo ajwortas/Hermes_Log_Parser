@@ -3,6 +3,8 @@ package collectors.EventCollectors;
 import java.text.ParseException;
 import java.util.Map;
 
+import tools.dataStorage.TestState;
+
 public class TestStatusEvent extends AbstractEventCollector{
 	
 	public TestStatusEvent() {
@@ -13,9 +15,9 @@ public class TestStatusEvent extends AbstractEventCollector{
 	public void logData(String[] data) throws IllegalArgumentException {
 		updateTests(data);
 		try {
-			Map<String,State> testMap = getTestStates();
+			Map<String,TestState> testMap = getTestStates();
 			for(String test:getChangedTests()) {
-				State testState = testMap.get(test);
+				TestState testState = testMap.get(test);
 				addActivity(test+"_"+testState, data[TIME_TESTED_INDEX]);
 			}
 		} catch (ParseException e) {

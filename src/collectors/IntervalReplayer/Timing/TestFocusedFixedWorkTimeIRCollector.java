@@ -28,7 +28,10 @@ public class TestFocusedFixedWorkTimeIRCollector extends AbstractIntervalReplaye
 			super.logData(data);
 			long time=0;
 			try {
-				time += replayer.getWorkTime(this.studentProject, this.lastTestTime, this.currentTestTime)[1];
+				time += replayer.getWorkTime(this.studentProject, this.lastTestTime+1, this.currentTestTime)[1];
+//				System.out.println("Last Time Tested: "+(lastTestTime+1));
+//				System.out.println("Last Time Tested: "+currentTestTime);
+//				System.out.println(time +"--"+(currentTestTime - (1+lastTestTime)) );
 			}catch(Exception e) {
 				throw new IllegalArgumentException(e.getMessage());
 			}

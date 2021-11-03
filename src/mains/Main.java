@@ -17,6 +17,7 @@ import compiledLogGenerator.LocalChecksLogData;
 import compiledLogGenerator.SemesterLogGenerator;
 import selectYearMapping.Comp524Fall2020;
 import selectYearMapping.YearSelectFactory;
+import tools.concurrency.ThreadManagerFactory;
 import tools.files.CSVParser;
 import tools.files.LogWriter;
 public class Main {
@@ -40,15 +41,36 @@ public class Main {
 		final File rawFolder = new File("I:\\Research\\Log_Parsing\\ClassFolders\\Comp301\\Summer20");
 		final String pathing = "Assignment "+AbstractIntervalReplayerBasedCollector.numberReplace+"_named/Assignment "+AbstractIntervalReplayerBasedCollector.numberReplace;
 		Collector [] collectors = {
+				
 //				new AttemptsCollectorV2(),
 //				new AvgTimeToSolveIRCollector(rawFolder,pathing),
 //				new AvgTestFocusedTimeToSolveIRCollector(rawFolder,pathing),
 //				new TotalSessionsCollector(),
 //				new TestPassPercentCollector(),
 //				new TestScorePercentCollector(),
-				new DateFirstTestedCollector(),
-				new TestFocusedFixedWorkTimeIRCollector(rawFolder,pathing),
-				new TestFocusedContextBasedWorkTimeIRCollector(rawFolder,pathing),
+//				new DateFirstTestedCollector(),
+//				new DateLastTestedCollector(),
+//				new ContextBasedWorkTimeIRCollector(rawFolder,pathing),
+//				new FixedWorkTimeIRCollector(rawFolder,pathing),
+//				new TestFocusedFixedWorkTimeIRCollector(rawFolder,pathing),
+//				new TestFocusedContextBasedWorkTimeIRCollector(rawFolder,pathing),
+				new TotalImprovementsCollector(),
+				new NumTestsFixedInXMinCollector(0.5),
+				new NumTestsFixedInXMinCollector(1),
+//				new NumTestsFixedInXMinCollector(3),
+				new NumTestsFixedInXMinCollector(5),
+//				new NumTestsFixedInXMinCollector(10),
+//				new NumTestsFixedInXMinCollector(30),
+//				new NumTestsFixedInXMinCollector(60),
+//				new NumTestsFixedInXMinCollector(300),
+//				new NumTestsFixedInXMinCollector(60*24*21),
+//				new RunAttempts(),
+				new FileSpacingCollector(),
+				new TestFocusedFixesInXMinCollector(0.5),
+				new FileSpacingCollector(),
+				new TestFocusedFixesInXMinCollector(1),
+				new FileSpacingCollector(),
+				new TestFocusedFixesInXMinCollector(5),
 		};
 		
 		File [] inputs = {
@@ -61,9 +83,9 @@ public class Main {
 		
 		for(int i=0;i<inputs.length;i++) {
 			try {
-				SemesterLogGenerator smg = new SemesterLogGenerator(collectors,true,"assignment#_TestTimes.csv");
-				smg.readData(inputs[i], outputs[i]);
-				smg.tm.end();
+				SemesterLogGenerator smg = new SemesterLogGenerator(collectors,true,"assignment#_runAttempts.csv");
+				smg.generateData(inputs[i], outputs[i],4);
+				ThreadManagerFactory.terminateThreadManager();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -100,8 +122,8 @@ public class Main {
 			try {
 				
 				SemesterLogGenerator smg = new SemesterLogGenerator(collectors,true,"assignment#_IntervalReplayer.csv");
-				smg.readData(inputs[i], outputs[i]);
-				smg.tm.end();
+				smg.generateData(inputs[i], outputs[i]);
+				ThreadManagerFactory.terminateThreadManager();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -150,7 +172,7 @@ public class Main {
 		
 		for(int i=0;i<inputs.length;i++) {
 			try {
-				new SemesterLogGenerator(collectors,true,"assignment#.csv").readData(inputs[i], outputs[i]);
+				new SemesterLogGenerator(collectors,true,"assignment#.csv").generateData(inputs[i], outputs[i]);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -194,10 +216,10 @@ public class Main {
 		
 		for(int i=0;i<inputs.length;i++) {
 			try {
-				new SemesterLogGenerator(suite,false,"assignment#_suiteEvents.csv").readData(inputs[i], outputs[i]);
-				new SemesterLogGenerator(test,false,"assignment#_testEvents.csv").readData(inputs[i], outputs[i]);
-				new SemesterLogGenerator(tts,false,"assignment#_testToSuiteEvents.csv").readData(inputs[i], outputs[i]);
-				new SemesterLogGenerator(btc,false,"assignment#_breakEvents.csv").readData(inputs[i], outputs[i]);
+				new SemesterLogGenerator(suite,false,"assignment#_suiteEvents.csv").generateData(inputs[i], outputs[i]);
+				new SemesterLogGenerator(test,false,"assignment#_testEvents.csv").generateData(inputs[i], outputs[i]);
+				new SemesterLogGenerator(tts,false,"assignment#_testToSuiteEvents.csv").generateData(inputs[i], outputs[i]);
+				new SemesterLogGenerator(btc,false,"assignment#_breakEvents.csv").generateData(inputs[i], outputs[i]);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -227,10 +249,10 @@ public class Main {
 //				{new TestWorkingSetEvent("ListToStringChecker")},
 //				{new TestWorkingSetEvent("BaseCaseSExpressionToStringChecker")},
 //				{new TestWorkingSetEvent("BaseCaseListToStringChecker")}
-				{new TestRunsCollector()},
+//				{new TestRunsCollector()},
 //				{new TestWorkingEvent()},
 //				{new TestStatusEvent()},
-				
+				{new TestAttemptTimeEvent()},
 		};
 		
 		
@@ -239,7 +261,7 @@ public class Main {
 		CollectorManager.enableConcurrency=false;
 		for(int i=0;i<recursives.length;i++) {
 			try {
-				new SemesterLogGenerator(recursives[i],false,i+"assignment#_events.csv").readData(inputs[0], outputs[0]);
+				new SemesterLogGenerator(recursives[i],false,i+"assignment#_events.csv").generateData(inputs[0], outputs[0]);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

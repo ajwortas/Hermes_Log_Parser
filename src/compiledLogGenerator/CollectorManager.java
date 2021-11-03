@@ -4,35 +4,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 import collectors.Collector;
+import selectYearMapping.YearSelectFactory;
 import tools.concurrency.*;
+import tools.dataStorage.SuiteMapping;
 
 public class CollectorManager {
 
 	public static boolean enableConcurrency = true;
-	private final ThreadManager manager;
 	private List<Collector> collectors;
 	private int maxReqPass=1;
-	private int numNormalPasses=0;
+//	private TestStatePreProcessing stateManager = new TestStatePreProcessing();
 	
 	public CollectorManager(){
-		this(new ArrayList<Collector>(),null);
+		collectors = new ArrayList<>();
 	}
-	
-	public CollectorManager(ThreadManager tm){
-		this(new ArrayList<Collector>(),tm);
-	}
-	
-	public CollectorManager(List<Collector> collectors, ThreadManager tm){
-		this.collectors=collectors;
-		
+
+	public CollectorManager(List<Collector> collectors){
+		this();
 		for(Collector c:collectors)
-			if(c.getRequiredPass()!=Integer.MAX_VALUE) {
-				numNormalPasses++;
-				if(c.getRequiredPass()>maxReqPass)
-					maxReqPass = c.getRequiredPass();
-			}
-		
-		manager = tm;
+			addCollector(c);	
 	}
 	
 	public CollectorManager(Collector ... collectors) {
@@ -41,43 +31,57 @@ public class CollectorManager {
 			addCollector(c);
 	}
 	
-	public void addCollector(Collector c){
-		if(c.getRequiredPass()!=Integer.MAX_VALUE) {
-			numNormalPasses++;
-			if(c.getRequiredPass()>maxReqPass)
-				maxReqPass = c.getRequiredPass();
-		}
-		collectors.add(c);
-	}
-	
-	public List<Collector> getCollectors(){
-		return collectors;
-	}
-	
 	public void processLog(List<String> dataLines) throws Exception {
-
-		for(int i=1;i<=maxReqPass;i++)
-			for(String dataLine:dataLines){
-				String [] splitLine=dataLine.split(",");
-				
-				if(enableConcurrency&&maxReqPass==1) {
-					Joiner j = new Joiner(this.numNormalPasses);
-					
+		for(int i=1;i<=maxReqPass;i++) {
+			if(enableConcurrency) {
+				int numCollectors=0;
+				ThreadManager treadManager = ThreadManagerFactory.getThreadManager();
+				for(Collector c:collectors) 
+					if(c.getRequiredPass()>=i&&c.getRequiredPass()<=maxReqPass)
+						numCollectors++;
+				Joiner j = new Joiner(numCollectors);
+				for(Collector collector:collectors)
+					if(collector.getRequiredPass()>=i&&collector.getRequiredPass()<=maxReqPass)
+						treadManager.addTask(new ProcessLogTask(collector,j,dataLines));
+				j.finish();
+			}else {
+				for(String dataLine:dataLines){
+					String [] splitLine=dataLine.split(",");
 					for(Collector collector:collectors)
-						if(collector.getRequiredPass()==i)
-							manager.addTask(new CollectorTask(collector,j,splitLine));
-					j.finish();
-				}else {
-					for(Collector collector:collectors)
-						if(collector.getRequiredPass()==i)
+						if(collector.getRequiredPass()>=i&&collector.getRequiredPass()<=maxReqPass)
 							collector.logData(splitLine);
 				}
 			}
+		}
 		
 		String [] lastLine = dataLines.get(dataLines.size()-1).split(",");
 		for(Collector collector:collectors)
 			if(collector.getRequiredPass()==Integer.MAX_VALUE)
 				collector.logData(lastLine);
+	}
+	
+	public void addCollector(Collector c){
+		if(c.getRequiredPass()>maxReqPass&&c.getRequiredPass()!=Integer.MAX_VALUE)
+			maxReqPass = c.getRequiredPass();
+		collectors.add(c);
+	}
+	
+	public void reset(){
+		for(Collector collector:collectors)
+			collector.reset();
+	}
+	
+	public boolean specialPrint() {
+		for(Collector collector:collectors)
+			if(!collector.otherCollectorCompatable())
+				return true;
+		return false;
+	}
+	
+	//Getters to retrieve processed data
+	
+	public List<Collector> getCollectors(){
+		return collectors;
 	}
 	
 	public List<String> getOrderedHeaders(){
@@ -97,7 +101,6 @@ public class CollectorManager {
 	}
 	
 	public List<String []> getCertainHeadersAndData(String [] desiredTests) {
-
 		List<String []> retval = new ArrayList<String[]>();
 		for(Collector collector:collectors) {
 			String [] headers = collector.getHeaders();
@@ -114,32 +117,51 @@ public class CollectorManager {
 		return retval;
 	}
 	
-	private boolean headerContainsTests(String header, String [] desiredTests) {
-		for(String test:desiredTests)
-			if(header.contains(test))
-				return true;
-		return false;
-	}
-	
-	
-	public void reset(){
-		for(Collector collector:collectors)
-			collector.reset();
-	}
-	
-	public boolean specialPrint() {
-		for(Collector collector:collectors)
-			if(!collector.otherCollectorCompatable())
-				return true;
-		return false;
-	}
-	
 	public List<String> getCollectorNames(){
 		List<String> retval = new ArrayList<>();
 		for(Collector collector:collectors)
 			retval.add(collector.getClass().getSimpleName());
 		return retval;
 	}
+	
+	//Helpers and Common Use Processing
+	
+	private boolean headerContainsTests(String header, String [] desiredTests) {
+		for(String test:desiredTests)
+			if(header.contains(test))
+				return true;
+		return false;
+	}
+
+//	public TestStatePreProcessing getStatePreProcessor() {
+//		return stateManager;
+//	}
+	
+	public void setTestNames(String [] tests) {
+		for(Collector collector:collectors)
+			if(collector.requiresTestNames()) 
+				collector.setTestNames(tests);
+	}
+	
+	public void setTestMappings(SuiteMapping mapping) {
+		for(Collector collector:collectors) 
+			if(collector.requiresSuiteMapping())
+				collector.setSuiteMapping(mapping);
+	}
+	
+	public void setAssignmentNumumber(String number) {
+		for(Collector collector:collectors) 
+			if(collector.requiresAssignmentNum())
+				collector.setAssignmentNumber(number);
+	}
+	
+	public void setStudentName(String name) {
+		for(Collector collector:collectors)
+			if(collector.requiresStudentName()) 
+				collector.setStudentName(name);
+	}
+	
+	
 }
 
 	

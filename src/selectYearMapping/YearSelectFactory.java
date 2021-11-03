@@ -1,5 +1,7 @@
 package selectYearMapping;
 
+import tools.dataStorage.SuiteMapping;
+
 public class YearSelectFactory {
 
 	private static YearMap ym =null;
@@ -8,8 +10,8 @@ public class YearSelectFactory {
 		ym=ymp;
 	}
 	
-	public static YearMap getYearMap() {
-		return ym;
+	public static SuiteMapping getYearMap(int assignment) {
+		return ym==null?null:ym.getMapping(assignment);
 	}
 	
 }
